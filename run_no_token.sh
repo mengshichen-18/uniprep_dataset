@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
-# Sequentially run the no-token graph pipeline scripts from the data directory.
-
-# /home/mengshi/table_quality/datasets_joint_discovery_integration/santos_benchmark_1218/datalake_plus
-# /home/mengshi/table_quality/datasets_joint_discovery_integration/santos_benchmark_1218/label_plus
-# /home/mengshi/table_quality/datasets_joint_discovery_integration/magellan_1218/label_plus
-# /home/mengshi/table_quality/datasets_joint_discovery_integration/magellan_1218/datalake_plus
-# /home/mengshi/table_quality/datasets_joint_discovery_integration/wikidbs_1218/label_plus
-# /home/mengshi/table_quality/datasets_joint_discovery_integration/wikidbs_1218/datalake_plus
-
+# Run the no-token graph pipeline for one or more datasets.
+# Reads input from DATASET_ROOT/<dataset>_433/{datalake_plus,label_plus}.
+# Writes graph output to DATASET_ROOT/<dataset>_433_no_token/.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+MODEL_PATH="${MODEL_PATH:-}"
 
 usage() {
   cat <<EOF
 Usage: $(basename "$0") [DATASET|--dataset DATASET ...|--all]
+
+Required environment variables:
+  DATASET_ROOT   Directory containing <dataset>_433 subdirectories
+
+Optional:
+  PYTHON_BIN     Python interpreter (default: python3)
+  MODEL_PATH     HuggingFace model path for embeddings
 
 DATASET:
   santos_benchmark   (default)
@@ -23,27 +26,38 @@ DATASET:
   wikidbs
 
 Examples:
-  bash data/run_no_token.sh
-  bash data/run_no_token.sh --all
-  bash data/run_no_token.sh magellan
-  bash data/run_no_token.sh --dataset wikidbs
+  DATASET_ROOT=/data/datasets bash run_no_token.sh
+  DATASET_ROOT=/data/datasets bash run_no_token.sh --all
+  DATASET_ROOT=/data/datasets bash run_no_token.sh magellan
+  DATASET_ROOT=/data/datasets bash run_no_token.sh --dataset wikidbs
 EOF
 }
 
+if [[ -z "${DATASET_ROOT:-}" ]]; then
+  echo "[ERROR] Set DATASET_ROOT to the directory containing dataset subdirectories." >&2
+  usage >&2
+  exit 1
+fi
+
+if ! command -v "${PYTHON_BIN}" &>/dev/null; then
+  echo "[ERROR] Python not found: ${PYTHON_BIN}" >&2
+  exit 1
+fi
+
 declare -A DATALAKE_PATHS=(
-  [santos_benchmark]="/home/mengshi/table_quality/datasets_joint_discovery_integration/santos_benchmark_1218/datalake_plus"
-  [magellan]="/home/mengshi/table_quality/datasets_joint_discovery_integration/magellan_1218/datalake_plus"
-  [wikidbs]="/home/mengshi/table_quality/datasets_joint_discovery_integration/wikidbs_1218/datalake_plus"
+  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark_433/datalake_plus"
+  [magellan]="${DATASET_ROOT}/magellan_433/datalake_plus"
+  [wikidbs]="${DATASET_ROOT}/wikidbs_433/datalake_plus"
 )
 declare -A LABEL_PATHS=(
-  [santos_benchmark]="/home/mengshi/table_quality/datasets_joint_discovery_integration/santos_benchmark_1218/label_plus"
-  [magellan]="/home/mengshi/table_quality/datasets_joint_discovery_integration/magellan_1218/label_plus"
-  [wikidbs]="/home/mengshi/table_quality/datasets_joint_discovery_integration/wikidbs_1218/label_plus"
+  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark_433/label_plus"
+  [magellan]="${DATASET_ROOT}/magellan_433/label_plus"
+  [wikidbs]="${DATASET_ROOT}/wikidbs_433/label_plus"
 )
 declare -A OUTPUT_DIRS=(
-  [santos_benchmark]="$SCRIPT_DIR/santos_benchmark_no_token"
-  [magellan]="$SCRIPT_DIR/magellan_no_token"
-  [wikidbs]="$SCRIPT_DIR/wikidbs_no_token"
+  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark_433_no_token"
+  [magellan]="${DATASET_ROOT}/magellan_433_no_token"
+  [wikidbs]="${DATASET_ROOT}/wikidbs_433_no_token"
 )
 
 datasets=()
@@ -83,9 +97,6 @@ else
   done
 fi
 
-# Always run relative to the directory this script lives in.
-cd "$SCRIPT_DIR"
-
 for dataset in "${datasets[@]}"; do
   datalake_path="${DATALAKE_PATHS[$dataset]:-}"
   label_path="${LABEL_PATHS[$dataset]:-}"
@@ -102,8 +113,14 @@ for dataset in "${datasets[@]}"; do
   echo "    label_path:    $label_path"
   echo "    output_dir:    $output_dir"
 
-  python -u ./build_graph_no_token.py --datalake-path "$datalake_path" --label-path "$label_path" --output-dir "$output_dir"
-  python -u ./embedding_edges_no_token.py --data-dir "$output_dir"
-  python -u ./embedding_nodes_no_token.py --data-dir "$output_dir" --batch-size 128 --max-length 512
-done
+  "${PYTHON_BIN}" -u "${SCRIPT_DIR}/build_graph_no_token.py" \
+    --datalake-path "$datalake_path" \
+    --label-path "$label_path" \
+    --output-dir "$output_dir"
 
+  embed_args=(--data-dir "$output_dir")
+  [[ -n "$MODEL_PATH" ]] && embed_args+=(--model-path "$MODEL_PATH")
+
+  "${PYTHON_BIN}" -u "${SCRIPT_DIR}/embedding_edges_no_token.py" "${embed_args[@]}"
+  "${PYTHON_BIN}" -u "${SCRIPT_DIR}/embedding_nodes_no_token.py" "${embed_args[@]}" --batch-size 128 --max-length 512
+done
