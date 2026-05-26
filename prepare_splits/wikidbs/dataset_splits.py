@@ -591,7 +591,7 @@ def write_splits(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate train/validate/test splits for wikidbs_1218.")
+    parser = argparse.ArgumentParser(description="Generate train/validate/test splits for wikidbs.")
     parser.add_argument("--train-ratio", type=float, default=TRAIN_RATIO)
     parser.add_argument("--validate-ratio", type=float, default=VALIDATE_RATIO)
     parser.add_argument("--test-ratio", type=float, default=TEST_RATIO)

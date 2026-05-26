@@ -41,7 +41,7 @@ def load_counts(path: Path) -> Dict[str, Tuple[int, int]]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Summarize Magellan_1218 entity-matching split sizes by dataset.")
+    parser = argparse.ArgumentParser(description="Summarize Magellan entity-matching split sizes by dataset.")
     parser.add_argument("--dir", type=str, default=str(LABEL_DIR), help="label_plus/entity_matching directory")
     args = parser.parse_args()
 

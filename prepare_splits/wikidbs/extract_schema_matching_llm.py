@@ -176,7 +176,7 @@ def main() -> None:
     parser.add_argument(
         "--api-key-file",
         default=".deepseek_key",
-        help="Path to a file containing the API key (default: wikidbs_1218/.deepseek_key).",
+        help="Path to a file containing the API key (default: .deepseek_key (in the dataset directory)).",
     )
     parser.add_argument(
         "--base-url",
@@ -198,7 +198,7 @@ def main() -> None:
     if not api_key:
         raise ValueError(
             "Missing API key. Provide --api-key, set DEEPSEEK_API_KEY, "
-            "or put the key in wikidbs_1218/.deepseek_key."
+            "or put the key in .deepseek_key (in the dataset directory)."
         )
     if base_url:
         client = OpenAI(api_key=api_key, base_url=base_url)

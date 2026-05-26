@@ -1,5 +1,5 @@
-Wikidbs_1218 Pipeline
-=====================
+WikiDBs Pipeline
+================
 
 This folder builds a new datalake + labels from `wikidbs/selected_dataset`.
 It keeps the Valentine-style string obfuscation for derived tables (used by
@@ -59,7 +59,7 @@ Notes
 - LLM scripts read schema from `wikidbs/selected_dataset/<db>/info_full.json` by default.
 - For image mode: `python extract_schema_matching_llm.py --schema-source image` (requires PyMuPDF).
 - Running `extract_schema_matching_llm.py` always overwrites `GPT_extracted_schema_matching_results.csv`.
-- Put your key in `wikidbs_1218/.deepseek_key` or set `DEEPSEEK_API_KEY`; set `DEEPSEEK_BASE_URL` if needed.
+- Put your key in `.deepseek_key (in the dataset directory)` or set `DEEPSEEK_API_KEY`; set `DEEPSEEK_BASE_URL` if needed.
 - If you see a `fitz` import error, uninstall the `fitz` package and install PyMuPDF (`pip install pymupdf`).
 - Joinable labels reuse `wikidbs/label/joinable_table_search/GPT_extracted_results.csv`.
 - This pipeline only writes base labels; split generation can be added later if needed.

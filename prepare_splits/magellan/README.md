@@ -1,5 +1,5 @@
-Magellan_1218 Pipeline
-======================
+Magellan Pipeline
+=================
 
 This folder builds a Valentine-style `datalake_plus/` and four task labels from
 `magellan_ori/` (the classic Magellan entity matching benchmarks).

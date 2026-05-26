@@ -714,7 +714,7 @@ def write_group_splits(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate train/validate/test splits for santos_benchmark_1218.")
+    parser = argparse.ArgumentParser(description="Generate train/validate/test splits for santos_benchmark.")
     parser.add_argument("--train-ratio", type=float, default=TRAIN_RATIO)
     parser.add_argument("--validate-ratio", type=float, default=VALIDATE_RATIO)
     parser.add_argument("--test-ratio", type=float, default=TEST_RATIO)

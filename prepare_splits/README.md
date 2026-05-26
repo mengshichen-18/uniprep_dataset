@@ -12,7 +12,7 @@ Set these environment variables before running:
 
 ```bash
 export DATASET_ROOT=/path/to/your/datasets_dir   # contains magellan_ori/, santos_benchmark_ori/, wikidbs/, valentine/
-export DATASET_DIR=/path/to/your/datasets_dir/<dataset>_433   # specific output dataset directory
+export DATASET_DIR=/path/to/your/datasets_dir/<dataset>   # specific output dataset directory
 export VALENTINE_DIR=/path/to/valentine           # optional override for Valentine library path
 ```
 
@@ -26,7 +26,7 @@ The steps are the same for all three datasets. Run sequentially within each data
 
 ```bash
 export DATASET_ROOT=/data/datasets
-export DATASET_DIR=${DATASET_ROOT}/magellan_433
+export DATASET_DIR=${DATASET_ROOT}/magellan
 
 python prepare_splits/magellan/generate_datalake.py
 python prepare_splits/magellan/label_entity_matching.py
@@ -40,7 +40,7 @@ python prepare_splits/magellan/dataset_splits.py
 
 ```bash
 export DATASET_ROOT=/data/datasets
-export DATASET_DIR=${DATASET_ROOT}/santos_benchmark_433
+export DATASET_DIR=${DATASET_ROOT}/santos_benchmark
 
 python prepare_splits/santos_benchmark/generate_datalake.py
 python prepare_splits/santos_benchmark/label_entity_matching.py
@@ -54,7 +54,7 @@ python prepare_splits/santos_benchmark/dataset_splits.py
 
 ```bash
 export DATASET_ROOT=/data/datasets
-export DATASET_DIR=${DATASET_ROOT}/wikidbs_433
+export DATASET_DIR=${DATASET_ROOT}/wikidbs
 
 python prepare_splits/wikidbs/generate_datalake.py
 python prepare_splits/wikidbs/label_entity_matching.py
@@ -66,15 +66,17 @@ python prepare_splits/wikidbs/dataset_splits.py
 ```
 
 Notes for WikiDBs:
-- `extract_schema_matching_llm.py` calls an LLM API (DeepSeek by default). Set `DEEPSEEK_API_KEY` or place your key in `wikidbs_433/.deepseek_key`.
+- `extract_schema_matching_llm.py` calls an LLM API (DeepSeek by default). Set `DEEPSEEK_API_KEY` or place your key in `$DATASET_DIR/.deepseek_key`.
 - `label_joinable_from_gpt.py` reuses pre-extracted GPT results at `$DATASET_ROOT/wikidbs/label/joinable_table_search/GPT_extracted_results.csv`.
 
-## Optional: Re-split with 4/3/3 ratios
+## Optional: Re-split with custom ratios
 
-`create_parallel_433_from_1218.py` creates `_433` directories from existing `_1218` datasets using 0.4/0.3/0.3 train/validate/test ratios. It copies all files and re-runs `dataset_splits.py` in place:
+`resplit_dataset.py` creates new dataset directories from existing ones with a different train/validate/test ratio. It copies all files, symlinks the bulky `datalake_plus/` and `metadata/` directories, and re-runs `dataset_splits.py`:
 
 ```bash
-DATASET_ROOT=/data/datasets python prepare_splits/create_parallel_433_from_1218.py
+DATASET_ROOT=/data/datasets python prepare_splits/resplit_dataset.py \
+    magellan_orig:magellan santos_benchmark_orig:santos_benchmark wikidbs_orig:wikidbs \
+    --train-ratio 0.4 --validate-ratio 0.3 --test-ratio 0.3
 ```
 
 ## Connecting to the Build Graph Pipeline
@@ -85,4 +87,4 @@ After splits are ready, run from the repo root:
 DATASET_ROOT=/data/datasets bash run_no_token.sh --all
 ```
 
-The output directories (`<dataset>_433_no_token/`) are used as `GRAPH_DIR` in the Uniprep training pipeline.
+The output directories (`<dataset>_no_token/`) are used as `GRAPH_DIR` in the Uniprep training pipeline.

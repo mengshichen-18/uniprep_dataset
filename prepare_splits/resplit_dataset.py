@@ -12,11 +12,6 @@ import os
 
 
 ROOT = Path(os.environ.get("DATASET_ROOT", str(Path(__file__).resolve().parent)))
-DATASET_MAP = {
-    "wikidbs_1218": "wikidbs_433",
-    "magellan_1218": "magellan_433",
-    "santos_benchmark_1218": "santos_benchmark_433",
-}
 SKIP_NAMES = {"__pycache__", "datalake_plus", "metadata", "extracted_images", "label_plus"}
 
 
@@ -117,7 +112,7 @@ def write_manifest(source_dir: Path, target_dir: Path, *, train_ratio: float, va
         ],
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
     }
-    (target_dir / "split_433_manifest.json").write_text(
+    (target_dir / "resplit_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
@@ -125,23 +120,43 @@ def write_manifest(source_dir: Path, target_dir: Path, *, train_ratio: float, va
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Create *_433 datasets from *_1218 while keeping datalake/metadata unchanged and regenerating only split files."
+        description=(
+            "Copy a dataset directory, keeping datalake/metadata unchanged, "
+            "and regenerate train/validate/test splits with a new ratio. "
+            "Specify one or more SOURCE:TARGET pairs under DATASET_ROOT."
+        )
     )
-    parser.add_argument("--force", action="store_true", help="Overwrite existing *_433 directories.")
+    parser.add_argument(
+        "pairs",
+        nargs="*",
+        metavar="SRC:DST",
+        help="Source:target dataset name pairs under DATASET_ROOT (e.g. wikidbs_orig:wikidbs).",
+    )
+    parser.add_argument("--force", action="store_true", help="Overwrite existing target directories.")
     parser.add_argument("--train-ratio", type=float, default=0.4)
     parser.add_argument("--validate-ratio", type=float, default=0.3)
     parser.add_argument("--test-ratio", type=float, default=0.3)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
+    if not args.pairs:
+        parser.error("Provide at least one SRC:DST pair, e.g.: wikidbs_orig:wikidbs magellan_orig:magellan")
+
     total = args.train_ratio + args.validate_ratio + args.test_ratio
     if abs(total - 1.0) > 1e-9:
         raise ValueError("train/validate/test ratios must sum to 1.0")
 
+    dataset_map: dict[str, str] = {}
+    for pair in args.pairs:
+        if ":" not in pair:
+            parser.error(f"Invalid pair '{pair}': expected SRC:DST format.")
+        src, dst = pair.split(":", 1)
+        dataset_map[src.strip()] = dst.strip()
+
     python_bin = choose_python()
     print(f"[python] {python_bin}")
 
-    for source_name, target_name in DATASET_MAP.items():
+    for source_name, target_name in dataset_map.items():
         source_dir = ROOT / source_name
         target_dir = ROOT / target_name
         if not source_dir.is_dir():

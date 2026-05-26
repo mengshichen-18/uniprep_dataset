@@ -490,7 +490,7 @@ def write_splits(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate train/validate/test splits for magellan_1218.")
+    parser = argparse.ArgumentParser(description="Generate train/validate/test splits for magellan.")
     parser.add_argument(
         "--split-mode",
         type=str,

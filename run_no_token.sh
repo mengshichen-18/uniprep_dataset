@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the no-token graph pipeline for one or more datasets.
-# Reads input from DATASET_ROOT/<dataset>_433/{datalake_plus,label_plus}.
-# Writes graph output to DATASET_ROOT/<dataset>_433_no_token/.
+# Reads input from DATASET_ROOT/<dataset>/{datalake_plus,label_plus}.
+# Writes graph output to DATASET_ROOT/<dataset>_no_token/.
 
 set -euo pipefail
 
@@ -14,7 +14,7 @@ usage() {
 Usage: $(basename "$0") [DATASET|--dataset DATASET ...|--all]
 
 Required environment variables:
-  DATASET_ROOT   Directory containing <dataset>_433 subdirectories
+  DATASET_ROOT   Directory containing dataset subdirectories
 
 Optional:
   PYTHON_BIN     Python interpreter (default: python3)
@@ -45,19 +45,19 @@ if ! command -v "${PYTHON_BIN}" &>/dev/null; then
 fi
 
 declare -A DATALAKE_PATHS=(
-  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark_433/datalake_plus"
-  [magellan]="${DATASET_ROOT}/magellan_433/datalake_plus"
-  [wikidbs]="${DATASET_ROOT}/wikidbs_433/datalake_plus"
+  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark/datalake_plus"
+  [magellan]="${DATASET_ROOT}/magellan/datalake_plus"
+  [wikidbs]="${DATASET_ROOT}/wikidbs/datalake_plus"
 )
 declare -A LABEL_PATHS=(
-  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark_433/label_plus"
-  [magellan]="${DATASET_ROOT}/magellan_433/label_plus"
-  [wikidbs]="${DATASET_ROOT}/wikidbs_433/label_plus"
+  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark/label_plus"
+  [magellan]="${DATASET_ROOT}/magellan/label_plus"
+  [wikidbs]="${DATASET_ROOT}/wikidbs/label_plus"
 )
 declare -A OUTPUT_DIRS=(
-  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark_433_no_token"
-  [magellan]="${DATASET_ROOT}/magellan_433_no_token"
-  [wikidbs]="${DATASET_ROOT}/wikidbs_433_no_token"
+  [santos_benchmark]="${DATASET_ROOT}/santos_benchmark_no_token"
+  [magellan]="${DATASET_ROOT}/magellan_no_token"
+  [wikidbs]="${DATASET_ROOT}/wikidbs_no_token"
 )
 
 datasets=()

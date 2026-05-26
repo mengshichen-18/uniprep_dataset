@@ -14,7 +14,7 @@ Build `datalake_plus/`, `label_plus/`, and `metadata/` from the original data, t
 
 ```bash
 export DATASET_ROOT=/path/to/your/datasets_dir
-export DATASET_DIR=${DATASET_ROOT}/magellan_433   # repeat for each dataset
+export DATASET_DIR=${DATASET_ROOT}/magellan   # repeat for each dataset
 
 python prepare_splits/magellan/generate_datalake.py
 python prepare_splits/magellan/label_entity_matching.py
@@ -24,7 +24,7 @@ python prepare_splits/magellan/dataset_splits.py
 
 ## Step 2: Build graphs
 
-Run the no-token graph pipeline for each dataset. Outputs go to `$DATASET_ROOT/<dataset>_433_no_token/`.
+Run the no-token graph pipeline for each dataset. Outputs go to `$DATASET_ROOT/<dataset>_no_token/`.
 
 ```bash
 DATASET_ROOT=/path/to/your/datasets_dir bash run_no_token.sh --all
@@ -34,7 +34,7 @@ Required environment variables:
 
 | Variable | Description |
 |---|---|
-| `DATASET_ROOT` | Directory containing `<dataset>_433` subdirectories |
+| `DATASET_ROOT` | Directory containing dataset subdirectories |
 | `MODEL_PATH` | HuggingFace model path for embedding (e.g. `sentence-t5-base`) |
 
-The output directories (`<dataset>_433_no_token/`) are passed as `GRAPH_DIR` when training with Uniprep.
+The output directories (`<dataset>_no_token/`) are passed as `GRAPH_DIR` when training with Uniprep.

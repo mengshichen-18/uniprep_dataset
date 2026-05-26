@@ -147,7 +147,7 @@ def main() -> None:
 
     print(
         "Notes:\n"
-        "- For Magellan_1218 EM labels, l_id/r_id should be chunk-local indices.\n"
+        "- For Magellan EM labels, l_id/r_id should be chunk-local indices.\n"
         "- To map back to original Magellan ids, use: global_id = chunk_start_id + local_id.\n"
     )
 

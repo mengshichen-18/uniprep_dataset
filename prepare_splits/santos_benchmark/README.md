@@ -1,12 +1,11 @@
-Santos Benchmark 1218 Pipeline
-==============================
+Santos Benchmark Pipeline
+=========================
 
 This folder builds a Valentine-style `datalake_plus/` and four task labels from
 `santos_benchmark_ori/`.
 
-Unlike `santos_benchmark/` (which relies on LLM-generated derived tables), this
-pipeline uses deterministic Valentine-inspired transformations, consistent with
-`wikidbs_1218`:
+Unlike a LLM-based pipeline, this pipeline uses deterministic Valentine-inspired
+transformations:
 
 - **Derived tables** (horizontal split + noise + column obfuscation) provide
   supervision for:
