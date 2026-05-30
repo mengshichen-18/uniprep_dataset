@@ -14,9 +14,9 @@ DATALAKE_DIR = BASE_DIR / "datalake_plus"
 LABEL_ROOT = BASE_DIR / "label_plus"
 META_DIR = BASE_DIR / "metadata"
 
-TRAIN_RATIO = 0.5
-VALIDATE_RATIO = 0.1
-TEST_RATIO = 0.4
+TRAIN_RATIO = 0.4
+VALIDATE_RATIO = 0.3
+TEST_RATIO = 0.3
 LABEL_BALANCE_RATIO = 3
 RANDOM_SEED = 42
 SPLIT_MODE = "random"  # random | dataset-disjoint
